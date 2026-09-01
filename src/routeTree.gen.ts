@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LibraryRouteImport } from './routes/library'
+import { Route as DialogueIndexRouteImport } from './routes/dialogue.index'
 import { Route as PracticeSlugRouteImport } from './routes/practice.$slug'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const LibraryRoute = LibraryRouteImport.update({
   path: '/library',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DialogueIndexRoute = DialogueIndexRouteImport.update({
+  id: '/dialogue/',
+  path: '/dialogue/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PracticeSlugRoute = PracticeSlugRouteImport.update({
   id: '/practice/$slug',
   path: '/practice/$slug',
@@ -33,30 +39,34 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/library': typeof LibraryRoute
   '/practice/$slug': typeof PracticeSlugRoute
+  '/dialogue/': typeof DialogueIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/library': typeof LibraryRoute
   '/practice/$slug': typeof PracticeSlugRoute
+  '/dialogue': typeof DialogueIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/library': typeof LibraryRoute
   '/practice/$slug': typeof PracticeSlugRoute
+  '/dialogue/': typeof DialogueIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/library' | '/practice/$slug'
+  fullPaths: '/' | '/library' | '/practice/$slug' | '/dialogue/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/library' | '/practice/$slug'
-  id: '__root__' | '/' | '/library' | '/practice/$slug'
+  to: '/' | '/library' | '/practice/$slug' | '/dialogue'
+  id: '__root__' | '/' | '/library' | '/practice/$slug' | '/dialogue/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LibraryRoute: typeof LibraryRoute
   PracticeSlugRoute: typeof PracticeSlugRoute
+  DialogueIndexRoute: typeof DialogueIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dialogue/': {
+      id: '/dialogue/'
+      path: '/dialogue'
+      fullPath: '/dialogue/'
+      preLoaderRoute: typeof DialogueIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/practice/$slug': {
       id: '/practice/$slug'
       path: '/practice/$slug'
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LibraryRoute: LibraryRoute,
   PracticeSlugRoute: PracticeSlugRoute,
+  DialogueIndexRoute: DialogueIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
