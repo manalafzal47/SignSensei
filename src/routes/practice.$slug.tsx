@@ -1,17 +1,11 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useState } from "react";
-import {
-  ArrowLeft,
-  BadgeCheck,
-  Eye,
-  Hand,
-  Move3d,
-  Repeat,
-  TriangleAlert,
-} from "lucide-react";
+import { useRef, useState } from "react";
+import { ArrowLeft } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import { CameraMirror, SignReference } from "@/components/SignStage";
 import { ScoreRing } from "@/components/ScoreRing";
+import { SignReference } from "@/components/SignStage";
+import { HandTracker, type HandFrame } from "@/components/HandTracker";
+import { evaluateAttempt } from "@/lib/sign-scoring";
 import { getSign } from "@/lib/signs";
 
 export const Route = createFileRoute("/practice/$slug")({
@@ -49,47 +43,38 @@ type Phase = "ready" | "recording" | "result";
 
 function Practice() {
   const { sign } = Route.useLoaderData();
+
   const [phase, setPhase] = useState<Phase>("ready");
   const [speed, setSpeed] = useState(0.5);
   const [score, setScore] = useState(0);
-  const [attempt, setAttempt] = useState(0);
+  const [capturedFrames, setCapturedFrames] = useState(0);
+  const [issues, setIssues] = useState<string[]>([]);
+  const [strengths, setStrengths] = useState<string[]>([]);
+
+  const framesRef = useRef<HandFrame[]>([]);
+
+  function handleFrame(frame: HandFrame) {
+    framesRef.current.push(frame);
+  }
 
   function start() {
+    framesRef.current = [];
+    setCapturedFrames(0);
+    setIssues([]);
+    setStrengths([]);
     setPhase("recording");
+
     window.setTimeout(() => {
-      const next = attempt === 0 ? 62 : Math.min(97, 62 + attempt * 14);
-      setScore(next);
-      setAttempt((a) => a + 1);
+      const frames = framesRef.current;
+      const evaluation = evaluateAttempt(frames, sign);
+
+      setCapturedFrames(frames.length);
+      setScore(evaluation.score);
+      setIssues(evaluation.issues);
+      setStrengths(evaluation.strengths);
       setPhase("result");
     }, 2200);
   }
-
-  const channels = [
-    {
-      icon: Hand,
-      label: "Handshape",
-      value: sign.handshape,
-      ok: score >= 60,
-    },
-    {
-      icon: Repeat,
-      label: "Movement",
-      value: sign.movement,
-      ok: score >= 75,
-    },
-    {
-      icon: Eye,
-      label: "Face & brows",
-      value: sign.facial,
-      ok: score >= 85,
-    },
-    {
-      icon: Move3d,
-      label: "Sign space",
-      value: sign.space,
-      ok: score >= 70,
-    },
-  ];
 
   return (
     <AppShell>
@@ -101,6 +86,7 @@ function Practice() {
         >
           <ArrowLeft className="h-4 w-4" />
         </Link>
+
         <div>
           <p className="text-[11px] font-semibold tracking-widest text-primary uppercase">
             {sign.category}
@@ -117,7 +103,10 @@ function Practice() {
           compact={phase === "result"}
         />
 
-        <CameraMirror recording={phase === "recording"} overlayWord={sign.word} />
+        <HandTracker
+          recording={phase === "recording"}
+          onFrame={handleFrame}
+        />
 
         {phase !== "result" ? (
           <>
@@ -125,6 +114,7 @@ function Practice() {
               <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                 Watch for
               </p>
+
               <ul className="mt-2 space-y-1.5 text-sm">
                 <li>
                   <span className="text-muted-foreground">Face · </span>
@@ -135,12 +125,10 @@ function Practice() {
                   {sign.space}
                 </li>
               </ul>
+
               <p className="mt-3 text-sm">
                 <span className="text-muted-foreground">In context · </span>
                 {sign.sentence}
-                <span className="block text-xs text-muted-foreground">
-                  {sign.sentenceGloss}
-                </span>
               </p>
             </div>
 
@@ -149,73 +137,74 @@ function Practice() {
               disabled={phase === "recording"}
               className="w-full rounded-2xl bg-signal py-4 text-sm font-bold text-primary-foreground shadow-glow disabled:opacity-70"
             >
-              {phase === "recording" ? "Hold the sign…" : "Start practice"}
+              {phase === "recording" ? "Capturing hand movement..." : "Start practice"}
             </button>
           </>
         ) : (
           <div className="rise space-y-4">
             <div className="flex items-center gap-4 rounded-3xl border border-border bg-surface p-5">
               <ScoreRing score={score} />
+
               <div>
-                <p className="font-display text-lg font-bold">
-                  {score >= 80 ? "Clean sign" : score >= 60 ? "Almost there" : "Keep going"}
-                </p>
+                {(() => {
+                  let resultTitle = "Keep practicing";
+
+                  if (score >= 70) {
+                    resultTitle = "Nice attempt";
+                  } else if (score >= 45) {
+                    resultTitle = "You are close";
+                  }
+
+                  return <p className="font-display text-lg font-bold">{resultTitle}</p>;
+                })()}
+
                 <p className="mt-1 text-xs leading-snug text-muted-foreground">
-                  {score >= 80
-                    ? "Hands, face and space all lined up. Try it inside a dialogue next."
-                    : "Your hands read correctly — the gap is in the parts that carry 70% of the meaning."}
+                  Captured {capturedFrames} frames and matched the current attempt against
+                  the target sign pattern.
                 </p>
               </div>
             </div>
 
-            <div className="space-y-2.5">
-              {channels.map(({ icon: Icon, label, value, ok }) => (
-                <div
-                  key={label}
-                  className={
-                    ok
-                      ? "flex gap-3 rounded-2xl border border-match/40 bg-surface p-4"
-                      : "flex gap-3 rounded-2xl border border-mismatch/50 bg-surface p-4"
-                  }
-                >
-                  <span
-                    className={
-                      ok
-                        ? "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-match/15 text-match"
-                        : "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-mismatch/15 text-mismatch"
-                    }
-                  >
-                    <Icon className="h-4 w-4" />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="flex items-center gap-1.5 text-sm font-semibold">
-                      {label}
-                      {ok ? (
-                        <BadgeCheck className="h-3.5 w-3.5 text-match" />
-                      ) : (
-                        <TriangleAlert className="h-3.5 w-3.5 text-mismatch" />
-                      )}
-                    </p>
-                    <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
-                      {ok ? value : `Adjust · ${value}`}
-                    </p>
-                  </div>
-                </div>
-              ))}
+            <div className="rounded-2xl border border-border bg-surface p-4">
+              <p className="text-sm font-semibold">What is working now</p>
+              <ul className="mt-2 space-y-1.5 text-xs leading-snug text-muted-foreground">
+                {strengths.length > 0 ? (
+                  strengths.map((strength) => <li key={strength}>• {strength}</li>)
+                ) : (
+                  <li>• Camera tracking is active and the hand was detected.</li>
+                )}
+              </ul>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-surface p-4">
+              <p className="text-sm font-semibold">What to improve</p>
+              <ul className="mt-2 space-y-1.5 text-xs leading-snug text-muted-foreground">
+                {issues.length > 0 ? (
+                  issues.map((issue) => <li key={issue}>• {issue}</li>)
+                ) : (
+                  <li>• No major issues flagged in this attempt.</li>
+                )}
+              </ul>
             </div>
 
             <div className="flex gap-2.5">
               <button
-                onClick={() => setPhase("ready")}
+                onClick={() => {
+                  framesRef.current = [];
+                  setIssues([]);
+                  setStrengths([]);
+                  setPhase("ready");
+                }}
                 className="flex-1 rounded-2xl bg-signal py-4 text-sm font-bold text-primary-foreground"
               >
                 Try again
               </button>
+
               <Link
-                to="/history"
+                to="/library"
                 className="flex-1 rounded-2xl border border-border bg-surface py-4 text-center text-sm font-semibold"
               >
-                Save & exit
+                Exit
               </Link>
             </div>
           </div>

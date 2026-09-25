@@ -33,8 +33,7 @@ function DialogueList() {
         {DIALOGUES.map((d) => (
           <Link
             key={d.id}
-            to="/dialogue/$id"
-            params={{ id: d.id }}
+            to="/dialogue"
             className="grain relative block overflow-hidden rounded-3xl border border-border bg-surface p-5"
           >
             <div className="absolute inset-0 bg-signal opacity-[0.08]" />

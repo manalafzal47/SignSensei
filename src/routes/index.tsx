@@ -27,6 +27,11 @@ export const Route = createFileRoute("/")({
 function Home() {
   const [query, setQuery] = useState("");
   const daily = SIGNS[0];
+
+  if (!daily) {
+    return null;
+  }
+
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return [];
@@ -149,8 +154,7 @@ function Home() {
           {DIALOGUES.slice(0, 2).map((d) => (
             <Link
               key={d.id}
-              to="/dialogue/$id"
-              params={{ id: d.id }}
+              to="/dialogue"
               className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-4"
             >
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-warm text-sm font-bold text-accent-foreground">
