@@ -1,233 +1,335 @@
-# SignSense Pro
+﻿# SignSense Pro
 
-create a sign language app design based on this that is very nice. the main purpose of this 
+A browser-based ASL practice app that helps beginners learn signs through guided repetition, webcam feedback, and contextual vocabulary review.
 
-this is my main idea from it:
+## Product goal
 
-Project Description:
+This project is not trying to be a perfect AI sign-language translator. It is a focused MVP for a real user need:
 
-A sign language tutor that helps users practice signing words, starting with English sign language (like ASL). It uses webcam-based motion recognition to let users select a word they want to practice and attempt the sign themselves using the camera. 
+> Learners want a low-pressure, bite-sized way to practice signs, get instant feedback, and build confidence without needing a teacher in the room.
 
+The app currently combines:
+- searchable sign vocabulary
+- category-based review
+- favourite word tracking
+- webcam-enabled practice flow
+- MediaPipe-based hand landmark detection
+- sign reference guidance with contextual sentences
 
+The next step is to turn this into a credible, well-engineered prototype that could be presented in interviews and portfolio reviews.
 
+---
 
+## Problem being solved
 
-User Research
+Learning sign language is difficult because meanings are often carried by:
+- facial expression
+- handshape
+- movement
+- spatial position
+- body posture
+- direction
 
+Most beginner resources are either too overwhelming or too passive. Learners need short, targeted lessons and immediate feedback on what they are doing wrong.
 
+This app addresses that by making practice feel structured and approachable.
 
+---
 
-Aron Feedback 
+## Core user experience
 
+### Primary flow
+1. User opens the library and searches for a sign.
+2. User picks a word from a category or favourites list.
+3. User watches a replay of the target sign.
+4. User attempts the sign using their webcam.
+5. The app evaluates the attempt with landmark-derived feedback.
+6. User retries and improves over time.
 
+### Learning model
+- beginner-friendly vocabulary
+- contextual usage examples
+- retry loop with meaningful feedback
+- practice history that supports reinforcement
 
+---
 
-What were the most frustrating or unintuitive parts of learning sign language?
+## MVP definition
 
-Facial expressions, head movement, and body posture are all extremely important. When I took formal classes, my sign language instructor taught me hand signs only account for 30% of all signs, the remaining 70% are the other things I mentioned.
+The target MVP for this project is:
 
-In spoken languages, tone and expression are helpful but not usually grammatically required. In sign language, they are essential, a slight difference in facial expression can change the entire meaning. There are signs that share the same hand gestures, but become completely different words just depending on your eyebrows or where in physical space you're signing it (e.g., lower body vs at chest height, etc). Similarly, spatial direction is important. For example, you cant just sign "I ____ YOU", the verb is directional, signing it from yourself to someone else changes the meaning (e.g., "I give you" vs. "you give me").
+- searchable sign library
+- category filtering and favourites
+- practice route for each sign
+- live webcam capture with hand landmark detection
+- target sign replay and guidance
+- scoring based on tracked motion features
+- simple feedback summary for each attempt
+- recent attempts / practice history
+- polished UI and clear empty/loading states
+- project documentation that explains the app honestly
 
-In general, its such a stark contrast compared to verbal languages where meaning is not so visual, I have to be looking directly at the person Im talking to and be extremely careful as to my entire body language so as to not "misspeak".
+### Explicitly out of scope for this launch version
+- full ASL translation
+- production-grade sign recognition model
+- user accounts or backend auth
+- social features or community feed
+- advanced 3D sign rendering
+- enterprise-grade analytics pipeline
 
+---
 
+## Technical stack
 
+- React + TypeScript
+- Vite
+- TanStack Router
+- Tailwind UI patterns
+- MediaPipe Tasks Vision for hand landmark detection
+- local browser-first architecture
 
-Are there any challenges you noticed when trying to learn sign language , any gaps that could be filled in learning material, teaching institutions , etc?
+This stack is appropriate for a polished frontend prototype and keeps the app fast and portable.
 
-When learning ASL specifically, I had the same troubles with any language learning, imo. Immersion, lack of a feedback, and information overload. In formal classes, I was being thrown too many words all at once per lesson, and it was overwhelming. Online, I could go at my own pace, but couldn't get the feedback I needed to know on what was wrong with my signs. Or, similarly, I didnt know where to start or end online, so it was difficult to know if I was learning the right things at the right time, or if I was going too far ahead for my level.
+---
 
+## Current project structure
 
+- src/routes/library.tsx — sign library and favourites flow
+- src/routes/practice.$slug.tsx — main practice experience
+- src/components/HandTracker.tsx — camera + MediaPipe tracking
+- src/lib/signs.ts — vocabulary and sign metadata
+- src/components/AppShell.tsx — layout shell and navigation
+
+---
+
+## Honest product positioning
+
+This app should be described as:
+
+> A browser-based sign language learning app for beginner practice, using webcam-based motion feedback and structured drill progression.
+
+It should not be marketed as:
+- a perfect ASL recognition engine
+- a production language-learning platform
+- a replacement for certified instruction
+
+This distinction matters for credibility in interviews, portfolios, and demos.
+
+---
+
+## Implementation backlog
+
+The steps below are the concrete, ordered backlog to complete this project in a way that reads like a serious product rather than a prototype.
+
+### Phase 1 — project cleanup and product clarity
+
+#### Task 1: define the final MVP and scope
+- confirm the user flow from library -> sign practice -> feedback -> retry
+- remove features that are not needed for the demo
+- document the product as a beginner sign tutor, not a general translation system
+
+#### Task 2: clean up app architecture
+- separate sign data, scoring logic, and UI concerns
+- ensure route-level data flow is explicit and typed
+- remove dead code or placeholder logic that is not tied to real behavior
+
+#### Task 3: improve app reliability
+- standardize loading states
+- add graceful camera permission handling
+- add empty states for no search results or no favourites
+- improve visual consistency across screens
+
+### Phase 2 — build the real practice engine
+
+#### Task 4: create a typed sign profile model
+Add a model that includes:
+- slug
+- word
+- category
+- difficulty
+- gloss
+- handshape
+- movement
+- orientation
+- spatial position
+- facial cues
+- common mistakes
+- feedback hints
+
+This keeps the recognition logic strongly tied to real sign definitions instead of loose strings.
+
+#### Task 5: extract landmark feature vectors
+Create a practice utility that does the following:
+- collect a sequence of landmark frames from the webcam
+- normalize coordinates relative to the hand position in frame
+- compute key metrics like:
+  - palm center movement
+  - finger spread
+  - wrist trajectory
+  - hand orientation
+  - height and depth relative to torso
+
+#### Task 6: build a sign comparison engine
+Create a scoring function that compares:
+- handshape similarity
+- movement path similarity
+- direction and spatial placement
+- hand count
+- confidence threshold from landmark detection
+
+This should generate a weighted score out of 100.
+
+### Phase 3 — build the feedback loop
+
+#### Task 7: replace placeholder scoring with meaningful feedback
+The current result screen in src/routes/practice.$slug.tsx should evolve from a simplistic tracking score into a structured feedback summary like:
+- “Your hand is too low”
+- “Movement is too short”
+- “Palm orientation is off”
+- “Try keeping your hand closer to your chest”
+
+#### Task 8: add retry behavior that teaches
+- allow user to retry immediately
+- provide a gradually improving score for attempts
+- record misses and “what to improve next”
+
+#### Task 9: add practice history
+Track:
+- sign name
+- timestamp
+- score
+- notable misses
+- improvement trend
+
+This makes the app feel useful over time instead of like a one-off demo.
+
+### Phase 4 — learning UX
+
+#### Task 10: improve the sign library experience
+- stronger search and category UX
+- favourite words dashboard
+- “review queue” for missed words
+- difficulty progression
+
+#### Task 11: add contextual usage
+For each sign, show:
+- example sentence
+- natural phrase usage
+- beginner-friendly explanation
+- common mistakes
+
+#### Task 12: add motivation layers
+- streak / progress vibe
+- mastery indicators
+- suggested daily word or short review set
+
+This is where the app starts feeling like a real learning product instead of a moving demo.
+
+### Phase 5 — testing and credibility
 
+#### Task 13: add unit tests for scoring logic
+Test:
+- score normalization
+- feature extraction edge cases
+- feedback logic thresholds
+- result summary generation
 
-Is there anything you wished existed when you were learning?
+#### Task 14: add UI tests for core flow
+Test:
+- searching for a sign
+- adding/removing favourites
+- starting a practice attempt
+- retry flow
+- result state rendering
 
-Bite-sized conversational scenarios would've been nice. Its hard to find those online other than through hour long youtube lessons.
+#### Task 15: run QA on the browser flow
+- camera access
+- permission denial
+- no-hand-detection state
+- low-light / bad angle behavior
+- result reliability
 
+### Phase 6 — portfolio polish
 
+#### Task 16: clean up marketing copy
+- tighten product description
+- improve README
+- create a polished landing story
 
+#### Task 17: build a demo script
+Prepare a short demo:
+1. search a sign
+2. start practice
+3. show feedback and retry
+4. explain the technical system
+5. explain limitations honestly
 
-Did you use any online tools, and if so, how effective were they?
+#### Task 18: document architecture and trade-offs
+Include:
+- why MediaPipe was chosen
+- what the app does well
+- what the app does not do yet
+- technical decisions and constraints
 
-I've used most online tools. They all have good knowledge and could be effective, but their effectiveness at teaching was usually either stumped by paywalls or other premium features. 
+---
 
+## Recommended execution order
 
+The most important sequence is:
 
+1. define the MVP and honest positioning
+2. refactor the app into a clean architecture
+3. build the sign feature extraction and scoring engine
+4. replace placeholder scoring in practice flow
+5. add feedback and history
+6. test and polish
+7. prepare the portfolio demo
 
+This order matters because the app will otherwise look polished while the core behavior remains weak.
 
-Competitive Analysis / Market Research: App reviews 
+---
 
+## Development commands
 
+```bash
+npm install
+npm run dev
+```
 
+To build production output:
 
-Sign School: 4.6
+```bash
+npm run build
+```
 
+---
 
+## Demo script for interviews
 
+> I built a browser-based ASL practice app that helps beginners practice signs with webcam feedback and structured review. The app uses MediaPipe to detect hand landmarks, extracts motion features from each attempt, and compares them against a target sign profile to generate helpful guidance. The current version focuses on beginner-friendly practice and feedback loops rather than full ASL translation, which keeps the project honest, usable, and explainable in a portfolio setting.
 
-Finger swipe left or right or urn page forward or backward
+---
 
-Like the game section-> helps review 
+## Final recommendation
 
-Like an option to match favourite words then could do review of the words i know that way
+The right next move is not to chase a massive language model or full sign-recognition platform. The right next move is to make this app feel like a real product:
+- clear flow
+- meaningful scoring
+- useful feedback
+- polished result UX
+- strong documentation
 
-Add a 3d view and different angles on the finger spelling so you can get your fingers in the right spot 
+That is the version that will impress recruiters and internships.
 
-Likes the button that can slow down
+---
 
+## Project status
 
+This project is in a strong prototype stage with a solid visual direction and usable concept. It is not yet a fully credible portfolio product until the scoring and feedback pipeline is made real and the app is documented as a focused MVP.
 
+This README is now the source of truth for the exact steps needed to finish it properly.
 
-
-ASL Bloom: 4.9
-
-Copies old duolingo
-
-Liked the big lesson where two instructors hold a conversation, then they broke it down word by word and it clicked
-
-
-
-
-Analysis: 
-
-Loved features:
-
-Game / Review Section – users want practice to feel fun and reinforcing
-
-Slow down button – they value control over pacing
-
-Conversations broken down – they learn better with contextual usage 
-
-
-
-
-Gaps and requests:
-
-Match favourite words for review
-
-3d view for finger spelling
-
-Users crave real dialogue practice rather than duolingo practice
-
-
-
-
-features I can add:
-
-Searchable word list
-
-Categorized vocabulary
-
-Favourite words playlist
-
-Daily word suggestion 
-
-
-
-
-Practice (core experience)
-
-Webcam practice mode
-
-Slow down replay of target sign
-
-3d rotatable model of hand position
-
-Real time mirror and overly comparison
-
-Option to see the sign in a sentence (contextual learning)
-
-
-
-
-Feedback and training
-
-Match percentage / track fail
-
-Highlight mismatch in handshape/position
-
-Textual feedback model
-
-Practice history log
-
-gamify practice (mirroring Duolingo trend)
-
-
-
-
-
-Features to Add:
-
-
-
-
-Homepage: 
-
-Searchable word list
-
-Categorized vocabulary
-
-Favourite words library
-
-Daily word suggestion 
-
-Webcam practice mode
-
-Slow down replay of target sign
-
-Real time mirror and overly comparison
-
-Option to see the sign in a sentence
-
-
-
-
-History / feedback; 
-
-Match percentage / track fail
-
-Highlight mismatch in handshape/position
-
-Textual feedback model
-
-Practice history log
-
-
-
-
-Extras: 
-
-Duolingo practice using the same retention words that users missed
-
-Bit sized conversations that users can practice 
-
-scenario based conversation presence 
-
-Dialogue between two
-
-Lessons history map similar to neetcode (?) 
-
-Can have a map of where to learn from if users sign in.  
-
-
-
-
-User Flow:
-
-
-
-
-
-Landing Screen: choose “daily sign” or “search sign”
-
-Practice screen: live webcam / + 3d modal
-
-Feedback modal: pass/fail, percentage, highlight mismatch
-
-History tab / profile: see past attempts, badges earned
-
-
-i want to make it modern and nice
+---
 
 This project was built with [Lovable](https://lovable.dev).
 
