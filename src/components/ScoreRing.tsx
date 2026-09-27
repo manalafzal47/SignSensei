@@ -1,14 +1,17 @@
 export function ScoreRing({
   score,
+  label = "tracking",
   size = 120,
-}: {
+}: Readonly<{
   score: number;
+  label?: string;
   size?: number;
-}) {
+}>) {
   const r = size / 2 - 8;
   const c = 2 * Math.PI * r;
-  const tone =
-    score >= 80 ? "var(--match)" : score >= 60 ? "var(--accent)" : "var(--mismatch)";
+  let tone = "var(--mismatch)";
+  if (score >= 80) tone = "var(--match)";
+  else if (score >= 60) tone = "var(--accent)";
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
@@ -35,9 +38,7 @@ export function ScoreRing({
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="font-display text-2xl font-bold">{score}%</span>
-        <span className="text-[10px] tracking-wide text-muted-foreground uppercase">
-          match
-        </span>
+        <span className="text-[10px] tracking-wide text-muted-foreground uppercase">{label}</span>
       </div>
     </div>
   );

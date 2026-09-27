@@ -2,10 +2,10 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import { ScoreRing } from "@/components/ScoreRing";
 import { SignReference } from "@/components/SignStage";
 import { HandTracker, type HandFrame } from "@/components/HandTracker";
-import { evaluateAttempt } from "@/lib/sign-scoring";
+import { appendPracticeAttempt, getCurrentUser } from "@/lib/app-store";
+import { evaluateCapture } from "@/lib/sign-scoring";
 import { getSign } from "@/lib/signs";
 
 export const Route = createFileRoute("/practice/$slug")({
@@ -45,11 +45,11 @@ function Practice() {
   const { sign } = Route.useLoaderData();
 
   const [phase, setPhase] = useState<Phase>("ready");
-  const [speed, setSpeed] = useState(0.5);
-  const [score, setScore] = useState(0);
-  const [capturedFrames, setCapturedFrames] = useState(0);
+  const [coverage, setCoverage] = useState(0);
+  const [sampleCount, setSampleCount] = useState(0);
   const [issues, setIssues] = useState<string[]>([]);
   const [strengths, setStrengths] = useState<string[]>([]);
+  const user = getCurrentUser();
 
   const framesRef = useRef<HandFrame[]>([]);
 
@@ -59,19 +59,29 @@ function Practice() {
 
   function start() {
     framesRef.current = [];
-    setCapturedFrames(0);
     setIssues([]);
     setStrengths([]);
     setPhase("recording");
 
     window.setTimeout(() => {
       const frames = framesRef.current;
-      const evaluation = evaluateAttempt(frames, sign);
+      const evaluation = evaluateCapture(frames);
 
-      setCapturedFrames(frames.length);
-      setScore(evaluation.score);
+      setCoverage(evaluation.coverage);
+      setSampleCount(evaluation.sampleCount);
       setIssues(evaluation.issues);
       setStrengths(evaluation.strengths);
+
+      appendPracticeAttempt({
+        slug: sign.slug,
+        word: sign.word,
+        category: sign.category,
+        coverage: evaluation.coverage,
+        sampleCount: evaluation.sampleCount,
+        misses: evaluation.issues,
+        summary: evaluation.strengths[0] ?? "Practice attempt recorded.",
+      });
+
       setPhase("result");
     }, 2200);
   }
@@ -96,17 +106,9 @@ function Practice() {
       </header>
 
       <div className="space-y-4 px-5">
-        <SignReference
-          word={sign.word}
-          speed={speed}
-          onSpeedChange={setSpeed}
-          compact={phase === "result"}
-        />
+        <SignReference sign={sign} />
 
-        <HandTracker
-          recording={phase === "recording"}
-          onFrame={handleFrame}
-        />
+        <HandTracker recording={phase === "recording"} onFrame={handleFrame} />
 
         {phase !== "result" ? (
           <>
@@ -143,41 +145,36 @@ function Practice() {
         ) : (
           <div className="rise space-y-4">
             <div className="flex items-center gap-4 rounded-3xl border border-border bg-surface p-5">
-              <ScoreRing score={score} />
-
+              <div className="min-w-24">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Hand detected
+                </p>
+                <p className="mt-1 text-3xl font-bold">{coverage}%</p>
+              </div>
               <div>
-                {(() => {
-                  let resultTitle = "Keep practicing";
-
-                  if (score >= 70) {
-                    resultTitle = "Nice attempt";
-                  } else if (score >= 45) {
-                    resultTitle = "You are close";
-                  }
-
-                  return <p className="font-display text-lg font-bold">{resultTitle}</p>;
-                })()}
-
+                <p className="font-display text-lg font-bold">Camera capture</p>
                 <p className="mt-1 text-xs leading-snug text-muted-foreground">
-                  Captured {capturedFrames} frames and matched the current attempt against
-                  the target sign pattern.
+                  Detected a hand in {Math.round((coverage / 100) * sampleCount)} of {sampleCount} captured frames. This does not grade sign accuracy.{" "}
+                  {user
+                    ? `Saved to ${user.name.split(" ")[0]}'s practice history.`
+                    : "Saved to your local practice history."}
                 </p>
               </div>
             </div>
 
             <div className="rounded-2xl border border-border bg-surface p-4">
-              <p className="text-sm font-semibold">What is working now</p>
+              <p className="text-sm font-semibold">What the camera detected</p>
               <ul className="mt-2 space-y-1.5 text-xs leading-snug text-muted-foreground">
                 {strengths.length > 0 ? (
                   strengths.map((strength) => <li key={strength}>• {strength}</li>)
                 ) : (
-                  <li>• Camera tracking is active and the hand was detected.</li>
+                  <li>• No hand landmarks were detected during this attempt.</li>
                 )}
               </ul>
             </div>
 
             <div className="rounded-2xl border border-border bg-surface p-4">
-              <p className="text-sm font-semibold">What to improve</p>
+              <p className="text-sm font-semibold">Framing feedback</p>
               <ul className="mt-2 space-y-1.5 text-xs leading-snug text-muted-foreground">
                 {issues.length > 0 ? (
                   issues.map((issue) => <li key={issue}>• {issue}</li>)

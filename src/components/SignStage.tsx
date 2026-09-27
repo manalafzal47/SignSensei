@@ -1,95 +1,87 @@
 import { useEffect, useRef, useState } from "react";
-import { Camera, CameraOff, Gauge, RotateCcw } from "lucide-react";
+import { Camera, CameraOff, ExternalLink, RotateCcw } from "lucide-react";
+import type { Sign, SignDemonstration } from "@/lib/signs";
 
-/** Stylized reference figure for the target sign — no stock photography. */
 export function SignReference({
-  word,
-  speed,
-  onSpeedChange,
-  compact = false,
-}: {
-  word: string;
-  speed: number;
-  onSpeedChange: (s: number) => void;
-  compact?: boolean;
-}) {
+  sign,
+}: Readonly<{
+  sign: Sign;
+}>) {
   return (
-    <div className="grain relative overflow-hidden rounded-2xl border border-border bg-surface">
-      <div
-        className={
-          compact
-            ? "relative flex h-40 items-center justify-center"
-            : "relative flex h-56 items-center justify-center"
-        }
-      >
-        <div className="absolute inset-0 bg-signal opacity-[0.14]" />
-        <SigningFigure speed={speed} />
-        <div className="absolute inset-x-0 bottom-0 h-16 bg-veil" />
-        <span className="absolute bottom-3 left-4 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-          Reference · {word}
-        </span>
-      </div>
-
-      <div className="flex items-center gap-3 border-t border-border px-4 py-3">
-        <Gauge className="h-4 w-4 text-primary" />
-        <span className="text-xs text-muted-foreground">Speed</span>
-        <div className="ml-auto flex gap-1.5">
-          {[0.25, 0.5, 1].map((s) => (
-            <button
-              key={s}
-              onClick={() => onSpeedChange(s)}
-              className={
-                speed === s
-                  ? "rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground"
-                  : "rounded-full bg-surface-2 px-3 py-1 text-xs font-medium text-muted-foreground"
-              }
-            >
-              {s}x
-            </button>
-          ))}
+    <section className="overflow-hidden rounded-2xl border border-border bg-surface">
+      <div className="flex items-center justify-between px-4 py-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Sign demonstration
+          </p>
+          <h2 className="mt-0.5 text-sm font-bold">{sign.word}</h2>
         </div>
       </div>
-    </div>
+
+      {sign.demonstrations.map((demonstration) => (
+        <div key={demonstration.label} className="border-t border-border">
+          <div className="flex items-center justify-between gap-3 px-4 py-2.5">
+            <p className="text-xs font-semibold">{demonstration.label}</p>
+            <div className="flex shrink-0 items-center gap-3">
+              {demonstration.youtubeUrl && (
+                <a
+                  href={demonstration.youtubeUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-1 text-xs font-semibold text-primary"
+                >
+                  Watch video <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              )}
+              <a
+                href={demonstration.sourceUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-1 text-xs font-semibold text-muted-foreground"
+              >
+                Source <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            </div>
+          </div>
+          <div className="aspect-video bg-surface-2">
+            <SignReferenceMedia sign={sign} demonstration={demonstration} />
+          </div>
+        </div>
+      ))}
+      <p className="border-t border-border px-4 py-2 text-[11px] text-muted-foreground">
+        ASL University (Lifeprint) reference examples. Phrase entries may show component signs;
+        regional variants exist.
+      </p>
+    </section>
   );
 }
 
-function SigningFigure({ speed }: { speed: number }) {
-  const duration = `${2.4 / speed}s`;
+function SignReferenceMedia({
+  sign,
+  demonstration,
+}: Readonly<{ sign: Sign; demonstration: SignDemonstration }>) {
   return (
-    <svg viewBox="0 0 200 150" className="relative h-40 w-auto">
-      <defs>
-        <linearGradient id="figure" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="oklch(0.74 0.145 216)" />
-          <stop offset="100%" stopColor="oklch(0.78 0.135 176)" />
-        </linearGradient>
-      </defs>
-      <circle cx="100" cy="42" r="24" fill="url(#figure)" opacity="0.95" />
-      <path
-        d="M64 148 C64 108 80 88 100 88 C120 88 136 108 136 148 Z"
-        fill="url(#figure)"
-        opacity="0.35"
-      />
-      <g style={{ transformOrigin: "100px 100px" }}>
-        <animateTransform
-          attributeName="transform"
-          type="rotate"
-          values="-14 100 100; 12 100 100; -14 100 100"
-          dur={duration}
-          repeatCount="indefinite"
+    <div
+      className={
+        demonstration.imageUrls.length === 1
+          ? "h-full p-2"
+          : "grid h-full grid-cols-2 gap-2 p-2"
+      }
+    >
+      {demonstration.imageUrls.map((imageUrl, index) => (
+        <img
+          key={imageUrl}
+          src={imageUrl}
+          alt={`ASL University ${demonstration.label} example for ${sign.word}, frame ${index + 1}`}
+          className={
+            demonstration.imageUrls.length === 1
+              ? "h-full w-full object-contain"
+              : "aspect-4/3 w-full object-contain"
+          }
+          loading="lazy"
         />
-        <rect x="94" y="92" width="12" height="44" rx="6" fill="url(#figure)" />
-        <circle cx="100" cy="136" r="11" fill="oklch(0.82 0.155 84)" />
-      </g>
-      <circle cx="91" cy="38" r="3" fill="oklch(0.17 0.022 264)" />
-      <circle cx="109" cy="38" r="3" fill="oklch(0.17 0.022 264)" />
-      <path
-        d="M92 50 Q100 56 108 50"
-        stroke="oklch(0.17 0.022 264)"
-        strokeWidth="2.5"
-        fill="none"
-        strokeLinecap="round"
-      />
-    </svg>
+      ))}
+    </div>
   );
 }
 
@@ -97,10 +89,10 @@ function SigningFigure({ speed }: { speed: number }) {
 export function CameraMirror({
   recording,
   overlayWord,
-}: {
+}: Readonly<{
   recording: boolean;
   overlayWord: string;
-}) {
+}>) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [state, setState] = useState<"idle" | "live" | "denied">("idle");
 
@@ -139,16 +131,11 @@ export function CameraMirror({
     <div
       className={
         recording
-          ? "pulse-ring relative aspect-[3/4] w-full overflow-hidden rounded-3xl border-2 border-mismatch bg-surface-2"
-          : "relative aspect-[3/4] w-full overflow-hidden rounded-3xl border border-border bg-surface-2 shadow-lift"
+          ? "pulse-ring relative aspect-3/4 w-full overflow-hidden rounded-3xl border-2 border-mismatch bg-surface-2"
+          : "relative aspect-3/4 w-full overflow-hidden rounded-3xl border border-border bg-surface-2 shadow-lift"
       }
     >
-      <video
-        ref={videoRef}
-        playsInline
-        muted
-        className="h-full w-full scale-x-[-1] object-cover"
-      />
+      <video ref={videoRef} playsInline muted className="h-full w-full scale-x-[-1] object-cover" />
 
       {state !== "live" && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-8 text-center">
@@ -184,8 +171,7 @@ export function CameraMirror({
       <div className="absolute inset-x-0 bottom-0 flex items-center gap-2 bg-veil px-4 pt-10 pb-4">
         {recording ? (
           <span className="flex items-center gap-2 rounded-full bg-mismatch px-3 py-1 text-xs font-bold text-mismatch-foreground">
-            <span className="h-2 w-2 rounded-full bg-mismatch-foreground" /> Reading
-            your sign
+            <span className="h-2 w-2 rounded-full bg-mismatch-foreground" /> Reading your sign
           </span>
         ) : (
           <span className="flex items-center gap-2 text-xs text-muted-foreground">

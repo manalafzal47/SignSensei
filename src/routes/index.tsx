@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Flame, Search, Sparkles, Star, ArrowRight, Play } from "lucide-react";
 import { AppShell, ScreenHeader } from "@/components/AppShell";
-import { SIGNS, DIALOGUES, SEED_HISTORY } from "@/lib/signs";
+import { getCurrentUser, getImprovementSummary, getPracticeHistory } from "@/lib/app-store";
+import { SIGNS, DIALOGUES } from "@/lib/signs";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -26,32 +27,38 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const [query, setQuery] = useState("");
+  const user = getCurrentUser();
+  const savedHistory = getPracticeHistory();
+  const history = savedHistory;
+  const summary = getImprovementSummary(history);
   const daily = SIGNS[0];
-
-  if (!daily) {
-    return null;
-  }
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return [];
     return SIGNS.filter(
-      (s) =>
-        s.word.toLowerCase().includes(q) || s.category.toLowerCase().includes(q),
+      (s) => s.word.toLowerCase().includes(q) || s.category.toLowerCase().includes(q),
     ).slice(0, 5);
   }, [query]);
 
-  const weakest = SEED_HISTORY.filter((a) => a.score < 75).slice(0, 3);
+  if (!daily) {
+    return null;
+  }
+
+  const weakest = history.filter((attempt) => attempt.coverage < 75).slice(0, 3);
 
   return (
     <AppShell>
       <ScreenHeader
-        title="Good morning, Manal"
-        subtitle="4-day streak · 12 signs in review"
+        title={user ? `Good morning, ${user.name.split(" ")[0]}` : "Good morning"}
+        subtitle={`${summary.averageCoverage}% avg. hand visibility · ${history.length} attempts`}
         action={
-          <span className="flex items-center gap-1.5 rounded-full bg-warm px-3 py-1.5 text-xs font-bold text-accent-foreground">
-            <Flame className="h-3.5 w-3.5" /> 4
-          </span>
+          <Link
+            to="/login"
+            className="flex items-center gap-1.5 rounded-full bg-warm px-3 py-1.5 text-xs font-bold text-accent-foreground"
+          >
+            <Flame className="h-3.5 w-3.5" /> {user ? "Profile" : "Login"}
+          </Link>
         }
       />
 
@@ -110,9 +117,9 @@ function Home() {
 
       {/* Review misses */}
       <section className="mt-7 px-5">
-        <SectionLabel icon={Flame} text="Bring back what slipped" />
+        <SectionLabel icon={Flame} text="Practice again" />
         <p className="mt-1 text-xs text-muted-foreground">
-          Signs you missed, resurfaced before you forget them.
+          Attempts where the camera detected your hand in fewer frames.
         </p>
         <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
           {weakest.map((a) => (
@@ -120,25 +127,35 @@ function Home() {
               key={a.slug + a.at}
               to="/practice/$slug"
               params={{ slug: a.slug }}
-              className="min-w-[152px] rounded-2xl border border-border bg-surface p-4"
+              className="min-w-38 rounded-2xl border border-border bg-surface p-4"
             >
               <div className="flex items-center justify-between">
                 <span className="text-sm font-semibold">{a.word}</span>
                 <span
                   className={
-                    a.score < 60
+                    a.coverage < 60
                       ? "text-xs font-bold text-mismatch"
                       : "text-xs font-bold text-accent"
                   }
                 >
-                  {a.score}%
+                  {a.coverage}%
                 </span>
               </div>
               <p className="mt-2 text-xs leading-snug text-muted-foreground">
-                {a.misses[0] ?? "Tighten the movement"}
+                {a.misses[0] ?? `Detected in ${a.coverage}% of ${a.sampleCount} frames`}
               </p>
             </Link>
           ))}
+        </div>
+      </section>
+
+      <section className="mt-7 px-5">
+        <SectionLabel icon={Sparkles} text="Tracking note" />
+        <div className="mt-3 rounded-2xl border border-border bg-surface p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Camera feedback
+          </p>
+          <p className="mt-2 text-sm text-foreground">{summary.recentTrend}</p>
         </div>
       </section>
 
@@ -162,9 +179,7 @@ function Home() {
               </div>
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold">{d.title}</p>
-                <p className="truncate text-xs text-muted-foreground">
-                  {d.scenario}
-                </p>
+                <p className="truncate text-xs text-muted-foreground">{d.scenario}</p>
               </div>
               <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-muted-foreground" />
             </Link>
@@ -178,10 +193,10 @@ function Home() {
 function SectionLabel({
   icon: Icon,
   text,
-}: {
+}: Readonly<{
   icon: React.ComponentType<{ className?: string }>;
   text: string;
-}) {
+}>) {
   return (
     <div className="flex items-center gap-2">
       <Icon className="h-4 w-4 text-primary" />

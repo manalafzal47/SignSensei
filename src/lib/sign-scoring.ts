@@ -1,85 +1,61 @@
 import type { HandFrame } from "@/components/HandTracker";
-import type { Sign } from "./signs";
 
 export type AttemptFeedback = {
-  score: number;
+  coverage: number;
+  sampleCount: number;
   issues: string[];
   strengths: string[];
 };
 
-export function evaluateAttempt(frames: HandFrame[], sign: Sign): AttemptFeedback {
+export function evaluateCapture(frames: HandFrame[]): AttemptFeedback {
   if (!frames.length) {
     return {
-      score: 0,
+      coverage: 0,
+      sampleCount: 0,
       issues: ["No hand detected in the recording."],
-      strengths: ["Camera preview is active."],
+      strengths: [],
     };
   }
 
-  const handsByFrame = frames
-    .map((frame) => frame.hands.length)
-    .filter((count) => count > 0);
+  const visibleFrames = frames.filter((frame) => frame.hands.length > 0);
+  const coverage = Math.round((visibleFrames.length / frames.length) * 100);
+  const wrists = visibleFrames
+    .map((frame) => frame.hands[0]?.[0])
+    .filter((wrist): wrist is NonNullable<typeof wrist> => wrist !== undefined);
 
-  const visibleHands = handsByFrame.length;
-  const avgHandCount = visibleHands === 0 ? 0 : handsByFrame.reduce((sum, count) => sum + count, 0) / visibleHands;
-
-  const handLocations = frames
-    .filter((frame) => frame.hands.length > 0)
-    .map((frame) => frame.hands[0])
-    .filter((hand): hand is NonNullable<typeof hand> => Boolean(hand));
-
-  if (handLocations.length === 0) {
+  if (wrists.length === 0) {
     return {
-      score: 5,
+      coverage,
+      sampleCount: frames.length,
       issues: ["No hand detected in the recording."],
-      strengths: ["Camera access is working."],
+      strengths: [],
     };
   }
 
-  const allXs = handLocations.flatMap((hand) => hand.map((landmark) => landmark.x));
-  const allYs = handLocations.flatMap((hand) => hand.map((landmark) => landmark.y));
-
-  const xCenter = average(allXs);
-  const yCenter = average(allYs);
-  const movement = measureMovement(handLocations);
+  const centerDistance = average(
+    wrists.map((wrist) => Math.hypot(wrist.x - 0.5, wrist.y - 0.5)),
+  );
 
   const issues: string[] = [];
   const strengths: string[] = [];
 
-  if (yCenter > 0.62) {
-    issues.push("Your hand is too low in frame.");
+  if (coverage < 80) {
+    issues.push("Keep your hand visible throughout the recording.");
   } else {
-    strengths.push("Your hand is positioned in a useful central range.");
+    strengths.push("Your hand stayed visible for most of the recording.");
   }
 
-  if (movement < 0.08) {
-    issues.push("Movement is too small to match the sign.");
+  if (centerDistance > 0.2) {
+    issues.push("Move your signing hand closer to the center of the camera frame.");
   } else {
-    strengths.push("The sign has a clear motion pattern.");
+    strengths.push("Your hand was framed near the center of the camera.");
   }
-
-  if (avgHandCount < 0.8) {
-    issues.push("Hand detection was inconsistent.");
-  } else {
-    strengths.push("The camera was tracking your hand consistently.");
-  }
-
-  if (Math.abs(xCenter - 0.5) > 0.25) {
-    issues.push("Keep your hand centered in the frame.");
-  }
-
-  const score = clamp(
-    100 -
-      issues.length * 18 -
-      (Math.max(0, yCenter - 0.55) * 90 + Math.max(0, 0.12 - movement) * 70),
-    0,
-    100,
-  );
 
   return {
-    score: Math.round(score),
-    issues: issues.length ? issues : ["Your movement is consistent with the target pattern."],
-    strengths: strengths.length ? strengths : ["You maintained a steady hand position."],
+    coverage,
+    sampleCount: frames.length,
+    issues,
+    strengths,
   };
 }
 
@@ -88,31 +64,3 @@ function average(values: number[]) {
   return values.reduce((sum, value) => sum + value, 0) / values.length;
 }
 
-function measureMovement(handLocations: Array<Array<{ x: number; y: number; z: number }>>) {
-  if (handLocations.length < 2) return 0.05;
-
-  let totalDistance = 0;
-
-  for (let i = 1; i < handLocations.length; i += 1) {
-    const previousHand = handLocations[i - 1];
-    const currentHand = handLocations[i];
-
-    if (!previousHand || !currentHand) continue;
-
-    const previousWrist = previousHand[0];
-    const currentWrist = currentHand[0];
-
-    if (!previousWrist || !currentWrist) continue;
-
-    totalDistance += Math.hypot(
-      currentWrist.x - previousWrist.x,
-      currentWrist.y - previousWrist.y,
-    );
-  }
-
-  return totalDistance / Math.max(1, handLocations.length - 1);
-}
-
-function clamp(value: number, min: number, max: number) {
-  return Math.min(Math.max(value, min), max);
-}

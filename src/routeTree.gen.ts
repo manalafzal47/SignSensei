@@ -10,7 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as HistoryRouteImport } from './routes/history'
 import { Route as LibraryRouteImport } from './routes/library'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as DialogueIndexRouteImport } from './routes/dialogue.index'
 import { Route as PracticeSlugRouteImport } from './routes/practice.$slug'
 
@@ -19,9 +21,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HistoryRoute = HistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LibraryRoute = LibraryRouteImport.update({
   id: '/library',
   path: '/library',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DialogueIndexRoute = DialogueIndexRouteImport.update({
@@ -37,34 +49,50 @@ const PracticeSlugRoute = PracticeSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/history': typeof HistoryRoute
   '/library': typeof LibraryRoute
+  '/login': typeof LoginRoute
   '/practice/$slug': typeof PracticeSlugRoute
   '/dialogue/': typeof DialogueIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/history': typeof HistoryRoute
   '/library': typeof LibraryRoute
+  '/login': typeof LoginRoute
   '/practice/$slug': typeof PracticeSlugRoute
   '/dialogue': typeof DialogueIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/history': typeof HistoryRoute
   '/library': typeof LibraryRoute
+  '/login': typeof LoginRoute
   '/practice/$slug': typeof PracticeSlugRoute
   '/dialogue/': typeof DialogueIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/library' | '/practice/$slug' | '/dialogue/'
+  fullPaths:
+    '/' | '/history' | '/library' | '/login' | '/practice/$slug' | '/dialogue/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/library' | '/practice/$slug' | '/dialogue'
-  id: '__root__' | '/' | '/library' | '/practice/$slug' | '/dialogue/'
+  to: '/' | '/history' | '/library' | '/login' | '/practice/$slug' | '/dialogue'
+  id:
+    | '__root__'
+    | '/'
+    | '/history'
+    | '/library'
+    | '/login'
+    | '/practice/$slug'
+    | '/dialogue/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  HistoryRoute: typeof HistoryRoute
   LibraryRoute: typeof LibraryRoute
+  LoginRoute: typeof LoginRoute
   PracticeSlugRoute: typeof PracticeSlugRoute
   DialogueIndexRoute: typeof DialogueIndexRoute
 }
@@ -78,11 +106,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/history': {
+      id: '/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof HistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/library': {
       id: '/library'
       path: '/library'
       fullPath: '/library'
       preLoaderRoute: typeof LibraryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dialogue/': {
@@ -104,7 +146,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  HistoryRoute: HistoryRoute,
   LibraryRoute: LibraryRoute,
+  LoginRoute: LoginRoute,
   PracticeSlugRoute: PracticeSlugRoute,
   DialogueIndexRoute: DialogueIndexRoute,
 }

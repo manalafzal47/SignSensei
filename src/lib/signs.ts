@@ -1,3 +1,10 @@
+export type SignDemonstration = {
+  label: string;
+  sourceUrl: string;
+  imageUrls: string[];
+  youtubeUrl?: string;
+};
+
 export type Sign = {
   slug: string;
   word: string;
@@ -10,6 +17,7 @@ export type Sign = {
   space: string;
   sentence: string;
   sentenceGloss: string;
+  demonstrations: SignDemonstration[];
 };
 
 export const CATEGORIES = [
@@ -34,6 +42,22 @@ export const SIGNS: Sign[] = [
     space: "Neutral space at chest height, slightly forward",
     sentence: "Good morning, did you sleep well?",
     sentenceGloss: "MORNING-GOOD, YOU SLEEP GOOD?",
+    demonstrations: [
+      {
+        label: "GOOD",
+        sourceUrl: "https://www.lifeprint.com/asl101/pages-signs/g/good.htm",
+        imageUrls: [
+          "https://www.lifeprint.com/asl101/signjpegs/g/good-01.jpg",
+          "https://www.lifeprint.com/asl101/signjpegs/g/good-02.jpg",
+        ],
+      },
+      {
+        label: "MORNING",
+        sourceUrl: "https://www.lifeprint.com/asl101/pages-signs/m/morning.htm",
+        imageUrls: ["https://www.lifeprint.com/asl101/signjpegs/m/morning-01.jpg"],
+        youtubeUrl: "https://www.youtube.com/watch?v=iH8N44QMh7c",
+      },
+    ],
   },
   {
     slug: "good-night",
@@ -47,6 +71,18 @@ export const SIGNS: Sign[] = [
     space: "Chest height, dropping toward the waist",
     sentence: "Good night, see you tomorrow.",
     sentenceGloss: "NIGHT-GOOD, TOMORROW SEE-YOU.",
+    demonstrations: [
+      {
+        label: "GOOD NIGHT",
+        sourceUrl: "https://www.lifeprint.com/asl101/pages-signs/g/good-night.htm",
+        imageUrls: [
+          "https://www.lifeprint.com/asl101/signjpegs/g/good-night-01.jpg",
+          "https://www.lifeprint.com/asl101/signjpegs/g/good-night-02.jpg",
+          "https://www.lifeprint.com/asl101/signjpegs/g/good-night-03.jpg",
+          "https://www.lifeprint.com/asl101/signjpegs/g/good-night-04.jpg",
+        ],
+      },
+    ],
   },
   {
     slug: "thank-you",
@@ -60,6 +96,16 @@ export const SIGNS: Sign[] = [
     space: "Directional: aim toward the person you're thanking",
     sentence: "Thank you for helping me.",
     sentenceGloss: "YOU HELP-ME, THANK-YOU.",
+    demonstrations: [
+      {
+        label: "THANK YOU",
+        sourceUrl: "https://www.lifeprint.com/asl101/pages-signs/t/thank-you.htm",
+        imageUrls: [
+          "https://www.lifeprint.com/asl101/signjpegs/t/thankyou1.jpg",
+          "https://www.lifeprint.com/asl101/signjpegs/t/thankyou2.jpg",
+        ],
+      },
+    ],
   },
   {
     slug: "please",
@@ -73,6 +119,16 @@ export const SIGNS: Sign[] = [
     space: "Center chest, stays on the body",
     sentence: "Please slow down a little.",
     sentenceGloss: "SLOW-DOWN LITTLE, PLEASE.",
+    demonstrations: [
+      {
+        label: "PLEASE",
+        sourceUrl: "https://www.lifeprint.com/asl101/pages-signs/p/please.htm",
+        imageUrls: [
+          "https://www.lifeprint.com/asl101/images-signs/please.gif",
+          "https://www.lifeprint.com/asl101/gifs-animated/pleasecloseup.gif",
+        ],
+      },
+    ],
   },
   {
     slug: "my-name-is",
@@ -86,6 +142,17 @@ export const SIGNS: Sign[] = [
     space: "Starts on the body, taps in neutral space",
     sentence: "My name is Manal.",
     sentenceGloss: "MY NAME M-A-N-A-L.",
+    demonstrations: [
+      {
+        label: "NAME",
+        sourceUrl: "https://www.lifeprint.com/asl101/pages-signs/n/name.htm",
+        imageUrls: [
+          "https://www.lifeprint.com/asl101/signjpegs/n/name-01.jpg",
+          "https://www.lifeprint.com/asl101/signjpegs/n/name-02.jpg",
+        ],
+        youtubeUrl: "https://www.youtube.com/watch?v=GbeC9TFuSX4",
+      },
+    ],
   },
   {
     slug: "nice-to-meet-you",
@@ -99,6 +166,17 @@ export const SIGNS: Sign[] = [
     space: "Directional — the fingers meet between you and them",
     sentence: "Nice to meet you, I'm new here.",
     sentenceGloss: "NICE MEET-YOU. ME NEW HERE.",
+    demonstrations: [
+      {
+        label: "NICE-to MEET-you",
+        sourceUrl: "https://www.lifeprint.com/asl101/pages-signs/01/nice-to-meet-you.htm",
+        imageUrls: [
+          "https://www.lifeprint.com/asl101/signjpegs/n/nice-01.jpg",
+          "https://www.lifeprint.com/asl101/signjpegs/n/nice-02.jpg",
+        ],
+        youtubeUrl: "https://www.youtube.com/watch?v=0QYYeAV0XjE",
+      },
+    ],
   },
   {
     slug: "how-are-you",
@@ -112,6 +190,18 @@ export const SIGNS: Sign[] = [
     space: "Ends pointing at the person — direction carries 'you'",
     sentence: "Hi, how are you today?",
     sentenceGloss: "HI, TODAY YOU HOW?",
+    demonstrations: [
+      {
+        label: "HOW (greeting question)",
+        sourceUrl: "https://www.lifeprint.com/asl101/pages-signs/h/how.htm",
+        imageUrls: [
+          "https://www.lifeprint.com/asl101/signjpegs/h/how-01.jpg",
+          "https://www.lifeprint.com/asl101/signjpegs/h/how-02.jpg",
+          "https://www.lifeprint.com/asl101/signjpegs/h/how-03.jpg",
+        ],
+        youtubeUrl: "https://www.youtube.com/watch?v=BaPzB4Xsq9Y",
+      },
+    ],
   },
   {
     slug: "i-understand",
@@ -125,6 +215,14 @@ export const SIGNS: Sign[] = [
     space: "At the side of the forehead",
     sentence: "I understand, thank you for explaining.",
     sentenceGloss: "UNDERSTAND. YOU EXPLAIN, THANK-YOU.",
+    demonstrations: [
+      {
+        label: "UNDERSTAND",
+        sourceUrl: "https://www.lifeprint.com/asl101/pages-signs/u/understand.htm",
+        imageUrls: ["https://i.ytimg.com/vi/5N10dIavSYc/hqdefault.jpg"],
+        youtubeUrl: "https://www.youtube.com/watch?v=5N10dIavSYc",
+      },
+    ],
   },
   {
     slug: "help-me",
@@ -138,6 +236,14 @@ export const SIGNS: Sign[] = [
     space: "Moves inward: outward would mean 'I help you'",
     sentence: "Can you help me with this?",
     sentenceGloss: "THIS, YOU HELP-ME CAN?",
+    demonstrations: [
+      {
+        label: "HELP-you in a sentence",
+        sourceUrl: "https://www.lifeprint.com/asl101/pages-signs/h/help.htm",
+        imageUrls: ["https://i.ytimg.com/vi/n8n93SQj5u8/hqdefault.jpg"],
+        youtubeUrl: "https://www.youtube.com/watch?v=n8n93SQj5u8",
+      },
+    ],
   },
   {
     slug: "later",
@@ -151,6 +257,18 @@ export const SIGNS: Sign[] = [
     space: "Neutral space, slightly to the dominant side",
     sentence: "See you later!",
     sentenceGloss: "SEE-YOU LATER!",
+    demonstrations: [
+      {
+        label: "LATER",
+        sourceUrl: "https://www.lifeprint.com/asl101/pages-signs/l/later.htm",
+        imageUrls: [
+          "https://www.lifeprint.com/asl101/signjpegs/l/later-d1.jpg",
+          "https://www.lifeprint.com/asl101/signjpegs/l/later-d2.jpg",
+          "https://www.lifeprint.com/asl101/signjpegs/l/later-d3.jpg",
+        ],
+        youtubeUrl: "https://www.youtube.com/watch?v=X4003aEoiWo",
+      },
+    ],
   },
   {
     slug: "again",
@@ -164,6 +282,18 @@ export const SIGNS: Sign[] = [
     space: "Low neutral space in front of the torso",
     sentence: "Can you sign that again?",
     sentenceGloss: "THAT SIGN AGAIN, PLEASE?",
+    demonstrations: [
+      {
+        label: "AGAIN / repeat",
+        sourceUrl: "https://www.lifeprint.com/asl101/pages-signs/a/again.htm",
+        imageUrls: [
+          "https://www.lifeprint.com/asl101/signjpegs/a/again1.jpg",
+          "https://www.lifeprint.com/asl101/signjpegs/a/again2.jpg",
+          "https://www.lifeprint.com/asl101/signjpegs/a/again3.jpg",
+        ],
+        youtubeUrl: "https://www.youtube.com/watch?v=wTNv94AY-yE",
+      },
+    ],
   },
   {
     slug: "have-a-lovely-day",
@@ -177,6 +307,28 @@ export const SIGNS: Sign[] = [
     space: "Wide sweep across neutral space, ending toward them",
     sentence: "Have a lovely day!",
     sentenceGloss: "DAY NICE HAVE-YOU!",
+    demonstrations: [
+      {
+        label: "DAY",
+        sourceUrl: "https://www.lifeprint.com/asl101/pages-signs/d/day.htm",
+        imageUrls: [
+          "https://www.lifeprint.com/asl101/signjpegs/d/day-1.jpg",
+          "https://www.lifeprint.com/asl101/signjpegs/d/day-indexfinger1.jpg",
+          "https://www.lifeprint.com/asl101/signjpegs/d/day-indexfinger2.jpg",
+          "https://www.lifeprint.com/asl101/signjpegs/d/day-indexfinger3.jpg",
+        ],
+        youtubeUrl: "https://www.youtube.com/watch?v=6Ag2Q2J9DAU",
+      },
+      {
+        label: "NICE",
+        sourceUrl: "https://www.lifeprint.com/asl101/pages-signs/n/nice.htm",
+        imageUrls: [
+          "https://www.lifeprint.com/asl101/signjpegs/n/nice-01.jpg",
+          "https://www.lifeprint.com/asl101/signjpegs/n/nice-02.jpg",
+        ],
+        youtubeUrl: "https://www.youtube.com/watch?v=2PeTh4Ym048",
+      },
+    ],
   },
 ];
 
@@ -251,47 +403,65 @@ export function getDialogue(id: string) {
 }
 
 export type Attempt = {
+  id: string;
   slug: string;
   word: string;
+  category: string;
   score: number;
   at: string;
   misses: string[];
+  summary: string;
 };
 
 export const SEED_HISTORY: Attempt[] = [
   {
+    id: "seed-thank-you",
     slug: "thank-you",
     word: "Thank You",
+    category: "Greetings",
     score: 92,
     at: "Today, 9:14",
     misses: [],
+    summary: "Warm, clear greeting movement.",
   },
   {
+    id: "seed-how-are-you",
     slug: "how-are-you",
     word: "How Are You",
+    category: "Questions",
     score: 64,
     at: "Today, 9:08",
     misses: ["Eyebrows dropped mid-question"],
+    summary: "Question structure is strong but facial expression needs more lift.",
   },
   {
+    id: "seed-help-me",
     slug: "help-me",
     word: "Help Me",
+    category: "Everyday",
     score: 48,
     at: "Yesterday, 20:41",
     misses: ["Movement went outward", "Hand too low"],
+    summary: "Direction and placement need more control.",
   },
   {
+    id: "seed-good-morning",
     slug: "good-morning",
     word: "Good Morning",
+    category: "Greetings",
     score: 88,
     at: "Yesterday, 20:35",
     misses: [],
+    summary: "Greeting sign was clear and fluid.",
   },
   {
+    id: "seed-my-name-is",
     slug: "my-name-is",
     word: "My Name Is",
+    category: "People",
     score: 71,
     at: "Mon, 18:02",
     misses: ["Second tap missing"],
+    summary: "Name sequence is close; the final tap needs more precision.",
   },
 ];

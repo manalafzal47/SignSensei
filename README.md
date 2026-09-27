@@ -4,10 +4,6 @@ A browser-based ASL practice app that helps beginners learn signs through guided
 
 ## Product goal
 
-This project is not trying to be a perfect AI sign-language translator. It is a focused MVP for a real user need:
-
-> Learners want a low-pressure, bite-sized way to practice signs, get instant feedback, and build confidence without needing a teacher in the room.
-
 The app currently combines:
 - searchable sign vocabulary
 - category-based review
@@ -15,8 +11,6 @@ The app currently combines:
 - webcam-enabled practice flow
 - MediaPipe-based hand landmark detection
 - sign reference guidance with contextual sentences
-
-The next step is to turn this into a credible, well-engineered prototype that could be presented in interviews and portfolio reviews.
 
 ---
 

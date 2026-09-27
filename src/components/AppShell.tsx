@@ -3,13 +3,13 @@ import { Hand, House, MessagesSquare, ChartLine } from "lucide-react";
 import type { ReactNode } from "react";
 
 const NAV = [
-  { to: "/", label: "Today", icon: House },
-  { to: "/library", label: "Library", icon: Hand },
-  { to: "/dialogue", label: "Dialogue", icon: MessagesSquare },
-  { to: "/history", label: "Progress", icon: ChartLine },
+  { to: "/" as const, label: "Today", icon: House },
+  { to: "/library" as const, label: "Library", icon: Hand },
+  { to: "/dialogue" as const, label: "Dialogue", icon: MessagesSquare },
+  { to: "/history" as const, label: "Progress", icon: ChartLine },
 ] as const;
 
-export function AppShell({ children }: { children: ReactNode }) {
+export function AppShell({ children }: Readonly<{ children: ReactNode }>) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   return (
@@ -53,11 +53,11 @@ export function ScreenHeader({
   title,
   subtitle,
   action,
-}: {
+}: Readonly<{
   title: string;
   subtitle?: string;
   action?: ReactNode;
-}) {
+}>) {
   return (
     <header className="flex items-start justify-between gap-4 px-5 pt-8 pb-5">
       <div>
